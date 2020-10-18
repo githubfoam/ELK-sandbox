@@ -1,0 +1,38 @@
+---
+sudo: required
+dist: bionic
+notifications:
+  slack:
+    on_failure: always
+matrix:
+  fast_finish: true
+  include:
+
+
+    - name: "EFK  snapped minikube kubectl helm Python 3.7 on bionic" #OK
+      dist: bionic
+      addons:
+        snaps:
+          - name: minikube
+            confinement: classic
+            channel: latest/stable
+          - name: kubectl
+            confinement: classic
+            channel: latest/stable
+          - name: helm
+            confinement: classic
+            channel: latest/stable
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - minikube version
+        - helm version
+        - kubectl version --client
+        - sudo make deploy-efk
+      after_success:
+        - deactivate
