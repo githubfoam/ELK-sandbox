@@ -54,7 +54,7 @@ apt-get install -qqy software-properties-common apt-transport-https
 apt-get update -qq && apt-get install -qqy default-jre
 
 # check the java environment
-echo $JAVA_HOME
+# echo $JAVA_HOME #JAVA_HOME: unbound variable
 
 # Install Elasticsearch
 # Add the elastic stack key and add the elastic repository to the system.
