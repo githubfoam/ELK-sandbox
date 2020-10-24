@@ -1,0 +1,33 @@
+rundeck_version: "2.6.2"
+
+rundeck_plugins:
+  - "https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/v1.5.1/rundeck-ec2-nodes-plugin-1.5.1.jar"
+  - "https://github.com/rundeck-plugins/rundeck-s3-log-plugin/releases/download/v1.0.0/rundeck-s3-log-plugin-1.0.0.jar"
+  - "https://github.com/higanworks/rundeck-slack-incoming-webhook-plugin/releases/download/v0.3.dev/rundeck-slack-incoming-webhook-plugin-0.3.jar"
+
+# framework.properties
+framework_server_port: 4440
+framework_server_url: "http://localhost:4440"
+framework_server_username: admin
+framework_server_password: admin
+
+framework_ssh_keypath: /var/lib/rundeck/.ssh/id_rsa
+framework_ssh_user: rundeck
+framework_ssh_timeout: 0
+
+rundeck_s3_bucket: ""
+rundeck_s3_path: "logs/${job.project}/${job.id}/${job.execid}.log"
+rundeck_s3_region: ap-northeast-1
+
+# rundeck-config.properties
+dataSource_dbCreate: update
+rundeck_clusterMode_enabled: "true"
+
+# MySQL
+rd_mysql_host: localhost
+rd_mysql_database: rundeck
+rd_mysql_user: rundeck
+rd_mysql_password: rundeck
+
+# Nginx
+rd_nginx_accesslog: /var/log/nginx/rundeck-access.log

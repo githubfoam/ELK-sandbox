@@ -1,0 +1,58 @@
+---
+# - include: mysql.yml
+# - include: nginx.yml
+
+- name: "Add mysql"
+  include_tasks: mysql.yml
+  # when: " ansible_os_family == 'Debian' and ansible_distribution in ['Debian','Ubuntu'] "
+
+- name: "Add nginx"
+  include_tasks: nginx.yml
+  # when: " ansible_os_family == 'Debian' and ansible_distribution in ['Debian','Ubuntu'] "
+
+- name: modify repository
+  apt_repository:
+    repo: 'deb http://dl.bintray.com/rundeck/rundeck-deb /'
+    state: present
+
+- name: install
+  apt:
+    name: "rundeck={{ rundeck_version }}*"
+    state: present
+    force: yes
+
+- name: download plugins
+  get_url:
+    url: "{{ item }}"
+    dest: "/var/lib/rundeck/libext/{{ item.split('/')[-1] }}"
+    mode: 0644
+  with_items: rundeck_plugins
+  notify: restart rundeckd
+
+- name: modify config
+  template:
+    src: "{{ item }}"
+    dest: "/etc/rundeck/{{ item }}"
+    owner: rundeck
+    group: rundeck
+    mode: 0640
+  with_items:
+    - profile
+    - framework.properties
+    - rundeck-config.properties
+    - realm.properties
+  notify: restart rundeckd
+
+- name: modify directory permission
+  file:
+    path: /etc/rundeck
+    state: directory
+    owner: rundeck
+    group: rundeck
+    recurse: yes
+
+- name: rundeckd is enabled
+  service:
+    name: rundeckd
+    state: started
+    enabled: yes

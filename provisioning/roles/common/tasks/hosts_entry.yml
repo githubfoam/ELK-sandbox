@@ -1,0 +1,10 @@
+---
+- name: Add mappings to /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      {{ item.ip }} {{ item.namelong }} {{ item.nameshort }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.nameshort }}"
+  with_items:
+  - { ip: 10.100.192.200, namelong: vg-rundeck-server-01.local, nameshort: vg-rundeck-server-01 }
+  when: add_host_entries
