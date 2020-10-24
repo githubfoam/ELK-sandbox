@@ -27,84 +27,149 @@ matrix:
         - echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
         # update repositories and install Elasticsearch
         - sudo apt-get update -qq && sudo apt-get install -qqy elasticsearch
-        - sudo /etc/elasticsearch/elasticsearch.yml
+        - sudo cat /etc/elasticsearch/elasticsearch.yml
         # Running Elasticsearch
         - sudo service elasticsearch start
         - sudo service elasticsearch status
-        - curl http://localhost:9200
-        # Elasticsearch behaves like a REST API
-        # POST if you want Elasticsearch to generate an ID for the data item
-        - |
-          curl -XPOST 'localhost:9200/logs/my_app' -H 'Content-Type: application/json' -d'
-            {
-              "timestamp": "2018-01-24 12:34:56",
-              "message": "User logged in",
-              "user_id": 4,
-              "admin": false
-            }
-            '
-          curl -X PUT 'localhost:9200/app/users/4' -H 'Content-Type: application/json' -d '
-          {
-            "id": 4,
-            "username": "john",
-            "last_login": "2018-01-25 12:34:56"
-          }
-          '
-        # PUT when you know the or want to specify the ID of the data item  
+        # - curl http://localhost:9200 #curl: (7) Failed to connect to localhost port 9200: Connection refused
+        # # Elasticsearch behaves like a REST API
+        # # POST if you want Elasticsearch to generate an ID for the data item
         # - |
+        #   curl -XPOST 'localhost:9200/logs/my_app' -H 'Content-Type: application/json' -d'
+        #     {
+        #       "timestamp": "2018-01-24 12:34:56",
+        #       "message": "User logged in",
+        #       "user_id": 4,
+        #       "admin": false
+        #     }
+        #     '
         #   curl -X PUT 'localhost:9200/app/users/4' -H 'Content-Type: application/json' -d '
         #   {
         #     "id": 4,
         #     "username": "john",
         #     "last_login": "2018-01-25 12:34:56"
         #   }
-        #   '             
-        # see a list of your Elasticsearch indices
-        - curl -XGET 'localhost:9200/_cat/indices?v&pretty'
-        # Elasticsearch Querying
-        # via the Elasticsearch REST API, use GET               
-        - curl -XGET 'localhost:9200/app/users/4?pretty'
-        # use GET to do searches by calling the _search endpoint
+        #   '
+        # # PUT when you know the or want to specify the ID of the data item  
+        # # - |
+        # #   curl -X PUT 'localhost:9200/app/users/4' -H 'Content-Type: application/json' -d '
+        # #   {
+        # #     "id": 4,
+        # #     "username": "john",
+        # #     "last_login": "2018-01-25 12:34:56"
+        # #   }
+        # #   '             
+        # # see a list of your Elasticsearch indices
+        # - curl -XGET 'localhost:9200/_cat/indices?v&pretty'
+        # # Elasticsearch Querying
+        # # via the Elasticsearch REST API, use GET               
+        # - curl -XGET 'localhost:9200/app/users/4?pretty'
+        # # use GET to do searches by calling the _search endpoint
+        # - |
+        #   curl -XGET 'localhost:9200/_search?q=logged'
+        #   {"took":173,"timed_out":false,"_shards":{"total":16,"successful":16,"skipped":0,"failed":0},"hits":{"total":1,"max_score":0.2876821,"hits":[{"_index":"logs","_type":"my_app","_id":"ZsWdJ2EBir6MIbMWSMyF","_score":0.2876821,"_source":
+        #   {
+        #       "timestamp": "2018-01-24 12:34:56",
+        #       "message": "User logged in",
+        #       "user_id": 4,
+        #       "admin": false
+        #   }
+        #   }]}}
+        # # Elasticsearch Query DSL
+        # - |
+        #   curl -XGET 'localhost:9200/logs/_search?pretty' -H 'Content-Type: application/json' -d'
+        #   {
+        #     "query": {
+        #       "match_phrase": {
+        #         "message": "User logged in"
+        #       }
+        #     }
+        #   }
+        #   '
+        # # Removing Elasticsearch Data          
+        # - |
+        #   curl -XDELETE 'localhost:9200/app/users/4?pretty'
+        #   {
+        #     "_index" : "app",
+        #     "_type" : "users",
+        #     "_id" : "4",
+        #     "_version" : 2,
+        #     "result" : "deleted",
+        #     "_shards" : {
+        #       "total" : 2,
+        #       "successful" : 1,
+        #       "failed" : 0
+        #     },
+        #     "_seq_no" : 1,
+        #     "_primary_term" : 1
+        #   }
+        # - curl -XDELETE 'localhost:9200/logs?pretty' #delete an index
+        # - curl -XDELETE 'localhost:9200/_all?pretty'$ #delete all indices
+        # Installing Logstash
+        # make sure either Java 8 or Java 11 installed
+        - sudo apt-get update -qq && sudo apt-get install -qqy default-jre
+        # add Elastic’s signing key so that the downloaded package can be verified
+        - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -        
+        # add the repository
+        # - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudotee -a /etc/apt/sources.list.d/elastic-7.x.list
+        # add the repository OSS version 
+        - echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" |sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+        - sudo apt-get update -qq && sudo apt-get install -qqy logstash
+        - ls -lai /etc/logstash/conf.d/
+        # see the list of loaded plugins
+        - cd /usr/share/logstash && bin/logstash-plugin list
+        # Installing other plugins
+        - bin/logstash-plugin install logstash-output-kafka
+        #  start Logstash
+        - sudo service logstash start
+        - sudo service logstash status
+        - sudo tail -n40 /var/log/logstash/logstash-plain.log
+        # use the Hot Threads API to view Java threads with high CPU and extended execution times
+        - curl -XGET 'localhost:9600/_node/hot_threads?human=true'
+        # Installing Kibana
+        # add Elastic’s signing key so that the downloaded package can be verified
+        - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -        
+        # Add the repository
+        # - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudotee -a /etc/apt/sources.list.d/elastic-7.x.list
+        # Add the repository OSS
+        - echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" |sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+        - sudo apt-get update -qq && sudo apt-get install -qqy kibana
+        # make sure
+        # server.port: 5601
+        # elasticsearch.url: "http://localhost:9200"
+        - sudo cat etc/kibana/kibana.yml
+        - sudo service kibana start
+        - sudo service kibana status
+        # - curl http://<yourServerIP>:5601
+        # Create a new Logstash configuration
         - |
-          curl -XGET 'localhost:9200/_search?q=logged'
-          {"took":173,"timed_out":false,"_shards":{"total":16,"successful":16,"skipped":0,"failed":0},"hits":{"total":1,"max_score":0.2876821,"hits":[{"_index":"logs","_type":"my_app","_id":"ZsWdJ2EBir6MIbMWSMyF","_score":0.2876821,"_source":
-          {
-              "timestamp": "2018-01-24 12:34:56",
-              "message": "User logged in",
-              "user_id": 4,
-              "admin": false
-          }
-          }]}}
-        # Elasticsearch Query DSL
-        - |
-          curl -XGET 'localhost:9200/logs/_search?pretty' -H 'Content-Type: application/json' -d'
-          {
-            "query": {
-              "match_phrase": {
-                "message": "User logged in"
-              }
+          cat <<EOT | sudo tee /etc/logstash/conf.d/apache-01.conf
+          input {
+            file {
+              path => "/home/ubuntu/apache-daily-access.log"
+              start_position => "beginning"
+              sincedb_path => "/dev/null"
             }
           }
-          '
-        # Removing Elasticsearch Data          
-        - |
-          curl -XDELETE 'localhost:9200/app/users/4?pretty'
-          {
-            "_index" : "app",
-            "_type" : "users",
-            "_id" : "4",
-            "_version" : 2,
-            "result" : "deleted",
-            "_shards" : {
-              "total" : 2,
-              "successful" : 1,
-              "failed" : 0
-            },
-            "_seq_no" : 1,
-            "_primary_term" : 1
+          filter {
+              grok {
+                match => { "message" => "%{COMBINEDAPACHELOG}" }
+              }
+              date {
+              match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+            }
+              geoip {
+                source => "clientip"
+              }
           }
-        - curl -XDELETE 'localhost:9200/logs?pretty' #delete an index
-        - curl -XDELETE 'localhost:9200/_all?pretty'$ #delete all indices
+          output {
+            elasticsearch {
+              hosts => ["localhost:9200"]
+            }
+          }
+          EOT
+        - sudo service logstash start
+        - sudo service logstash status
       after_success:
         - deactivate
 
