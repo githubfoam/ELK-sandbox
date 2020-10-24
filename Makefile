@@ -2,7 +2,7 @@ IMAGE := alpine/fio
 APP:="app/deploy-openesb.sh"
 
 deploy-topology:
-	bash scripts/deploy-boxes.sh
+	bash scripts/deploy-topology.sh
 
 deploy-libvirt:
 	bash scripts/deploy-libvirt.sh
