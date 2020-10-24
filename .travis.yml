@@ -126,7 +126,7 @@ matrix:
         - pip install -r requirements.txt
       script:
       # run Elasticsearch
-      - brew services start elastic/tap/elasticsearch-full
+      - brew services start elastic/tap/elasticsearch-oss
       # OR run Elasticsearch
       # - elasticsearch
       # - curl http://localhost:9200 #curl: (7) Failed to connect to localhost port 9200: Connection refused
@@ -134,14 +134,14 @@ matrix:
       # make a copy of /usr/local/opt/kibana-full/plugins before upgrading, 
       # and copy it into the new keg location after upgrading
       # run Kibana in the background
-      - brew services start elastic/tap/kibana-full
+      - brew services start elastic/tap/kibana-oss
       # OR don’t want/need a background service just run
       # - kibana 
       # access Kibana
       # - curl http://localhost:5601 #curl: (7) Failed to connect to localhost port 9200: Connection refused
       # System Metrics Pipeline from Local Machine to Kibana
       # run Kibana in the background
-      - brew services start elastic/tap/metricbeat-full
+      - brew services start elastic/tap/metricbeat-oss
       # OR don’t want/need a background service just run
       # - metricbeat
       # verify by listing Elasticsearch indices
