@@ -8,20 +8,79 @@ matrix:
   fast_finish: true
   include:
 
-
-    - name: "ELK  w minikube kubectl helm snapped  Python 3.7 on focal"
-      dist: focal
+    - name: "Install Filebeat w homebrew on macOS 10.15.7 osx xcode12.2"
+      os: osx
+      osx_image:
+        - xcode12.2 #macOS 10.15.7
       addons:
-        snaps:
-          - name: minikube
-            confinement: classic
-            channel: latest/stable
-          - name: kubectl
-            confinement: classic
-            channel: latest/stable
-          - name: helm
-            confinement: classic
-            channel: latest/stable
+        homebrew:
+          casks:
+          # https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf
+          # - wkhtmltopdf
+          # taps: garden-io/garden
+          packages:
+          - git
+          - python
+          - java
+          - filebeat           
+          update: true
+      language: shell
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - python --version
+        - pip install -r requirements.txt
+      script:
+        # Configure Filebeat using a YAML configuration file
+        # /usr/local/etc/filebeat/filebeat.yml
+        # /usr/local/cellar/filebeat-full/filebeat.yml.
+      - java -version 
+      after_success:
+        - deactivate
+
+    - name: "Install Filebeat using Apt  Python 3.7 on focal"
+      dist: focal
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        # add Elastic’s signing key so that the downloaded package can be verified
+        - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+        # add the repository
+        - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list  
+        # update repository and install Filebeat
+        # Configure Filebeat using a YAML configuration file
+        # on Docker,  /etc/filebeat/filebeat.yml
+        - sudo apt-get update -qq && sudo apt-get install -qqy filebeat        
+      after_success:
+        - deactivate
+
+    - name: "Install Filebeat on Docker Python 3.7 on focal"
+      dist: focal
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        # install Filebeat as a container on your host 
+        # and configure it to collect container logs or log files from your host
+        # Configure Filebeat using a YAML configuration file
+        # on Docker,  /usr/share/filebeat/filebeat.yml
+        - docker pull docker.elastic.co/beats/filebeat7.4.2
+        - docker image ls
+      after_success:
+        - deactivate
+
+    - name: "ELK  wo minikube kubectl helm snapped  Python 3.7 on focal"
+      dist: focal
       language: python
       python: 3.7
       before_install:
