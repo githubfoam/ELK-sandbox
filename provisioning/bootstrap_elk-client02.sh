@@ -24,38 +24,59 @@ echo "                 ||----w |                                                
 echo "                 ||     ||                                                         "
 echo "========================================================================================="
 
-# https://docs.rundeck.com/docs/administration/install/linux-deb.html#rundeck-enterprise
-# Open Source Rundeck
+# Install and Configure Filebeat on CentOS
 
-apt-get update -qq
+# Copy the logstash certificate file 'logstash-forwarder.crt' using
+# scp root@elk-master:/etc/logstash/ssl/logstash-forwarder.crt .
 
-# Install deb package directly
-# Download deb package: http://rundeck.org/download/deb
-# RUNDECK_VERSION="3.3.5.20201019-1_all"
-# dpkg -i https://download.rundeck.org/deb/rundeck_3.3.5.20201019-1_all.deb
-# wget https://download.rundeck.org/deb/rundeck_$RUNDECK_VERSION.deb
-# dpkg -i rundeck_$RUNDECK_VERSION.deb
+#  install the Elastic Beats 'Filebeat' by adding the elastic key 
+# and add the elastic repository
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+ 
+cat <<EOF > /etc/yum.repos.d/elastic.repo
+[elasticsearch-6.x]
+name=Elasticsearch repository for 6.x packages
+baseurl=https://artifacts.elastic.co/packages/6.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
 
-# https://docs.rundeck.com/downloads.html
-apt-get install -qqy openjdk-8-jdk-headless
-RUNDECK_VERSION="3.3.5.20201019-1_all"
-wget -q https://download.rundeck.org/deb/rundeck_$RUNDECK_VERSION.deb
-dpkg -i rundeck_3.3.5.20201019-1_all.deb
+# Install filebeat
+yum install filebeat -y
 
-# Verify a supported java version is installed
-java -version
+# go to the '/etc/filebeat' directory 
+# and edit the configuration file 'filebeat.yml'
+# cd /etc/filebeat/
+# vim filebeat.yml
+# enable the filebeat prospectors by change the 'enabled' line value to 'true'.
+# enabled: true
+# Define system log files to be sent to the logstash server.
+# add the ssh log file 'auth.log' and the syslog file
+#   paths:
+#     - /var/log/secure
+#     - /var/log/messages
+# Setup the output to logstash by commenting the default 'elasticsearch' output and uncomment the logstash output line
+# output.logstash:
+#   # The Logstash hosts
+#   hosts: ["elk-master:5443"]
+#   ssl.certificate_authorities: ["/etc/filebeat/logstash-forwarder.crt"]
 
-# start Rundeck
-service rundeckd start
-# verify that the service started correctly, tail the logs
-tail -n 40 /var/log/rundeck/service.log
+# edit the 'filebeat.reference.yml' file to enable filebeat modules
+# enable the 'syslog' module.
+# vim filebeat.reference.yml
+# Enable the syslog system module for filebea
+# - module: system
+#   # Syslog
+#   syslog:
+#     enabled: true
 
-# The service is ready once you see something similar to
-# Grails application running at http://localhost:4440 in environment: production
+# Copy the logstash certificate file 'logstash-forwarder.crt' to the '/etc/filebeat' directory.
+# cp ~/logstash-forwarder.crt /etc/filebeat/logstash-forwarder.crt    
 
-# Navigate to http://localhost:4440/ in a browser.
-# Log in with the username admin and password admin
-curl http://127.0.0.1:4440/
-curl -v http://localhost:4440/
-curl http://localhost:4440/
-curl http://vg-rundeck-debian.local:4440/
+systemctl start filebeat
+systemctl enable filebeat
+systemctl status filebeat
+tail -n 40 /var/log/filebeat/filebeat
