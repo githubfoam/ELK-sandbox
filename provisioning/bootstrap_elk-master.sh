@@ -75,6 +75,9 @@ systemctl start elasticsearch
 systemctl enable elasticsearch
 systemctl status elasticsearch
 
+# required by netstat
+apt-get install -yqq net-tools
+
 netstat -plntu
 curl -XGET 'localhost:9200/?pretty'
 
@@ -92,8 +95,7 @@ systemctl start kibana
 systemctl enable kibana
 systemctl status kibana
 
-# required by netstat
-apt-get install -yqq net-tools
+
 # The kibana dashboard is now up and running on the 'localhost' address and the default port '5601'
 netstat -plntu
 
