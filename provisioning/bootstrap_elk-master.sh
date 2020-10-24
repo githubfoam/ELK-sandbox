@@ -92,6 +92,8 @@ systemctl start kibana
 systemctl enable kibana
 systemctl status kibana
 
+# required by netstat
+apt-get install -yqq net-tools
 # The kibana dashboard is now up and running on the 'localhost' address and the default port '5601'
 netstat -plntu
 
