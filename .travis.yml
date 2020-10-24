@@ -119,13 +119,13 @@ matrix:
         # see the list of loaded plugins
         - cd /usr/share/logstash && bin/logstash-plugin list
         # Installing other plugins
-        - bin/logstash-plugin install logstash-output-kafka
+        # - bin/logstash-plugin install logstash-output-kafka #ERROR: File /usr/share/logstash/Gemfile does not exist or is not writable, aborting
         #  start Logstash
         - sudo service logstash start
         - sudo service logstash status
-        - sudo tail -n40 /var/log/logstash/logstash-plain.log
+        # - sudo tail -n 40 /var/log/logstash/logstash-plain.log #tail: cannot open '/var/log/logstash/logstash-plain.log' for reading: No such file or directory
         # use the Hot Threads API to view Java threads with high CPU and extended execution times
-        - curl -XGET 'localhost:9600/_node/hot_threads?human=true'
+        # - curl -XGET 'localhost:9600/_node/hot_threads?human=true' #curl: (7) Failed to connect to localhost port 9600: Connection refused
         # Installing Kibana
         # add Elastic’s signing key so that the downloaded package can be verified
         - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -        
@@ -137,7 +137,7 @@ matrix:
         # make sure
         # server.port: 5601
         # elasticsearch.url: "http://localhost:9200"
-        - sudo cat etc/kibana/kibana.yml
+        - sudo cat /etc/kibana/kibana.yml
         - sudo service kibana start
         - sudo service kibana status
         # - curl http://<yourServerIP>:5601
@@ -283,5 +283,101 @@ matrix:
       script:
       # deploy a Docker image of Metricbeat on Kubernetes
         - curl -L -O https://raw.githubusercontent.com/elastic/beats/7.6/deploy/kubernetes/metricbeat-kubernetes.yaml
+        # To simulate some load and generate log data, deploy a demo application
+        # use the Azure voting app which includes two Kubernetes Services – a Redis instance and an external service for accessing the ap
+        # create a new manifest file containing the specs of deploying the app
+        - |
+          cat <<EOT | sudo tee azure-vote.yaml
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+          name: azure-vote-back
+          spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: azure-vote-back
+          template:
+            metadata:
+              labels:
+                app: azure-vote-back
+            spec:
+              nodeSelector:
+                "beta.kubernetes.io/os": linux
+              containers:
+              - name: azure-vote-back
+                image: redis
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+                  limits:
+                    cpu: 250m
+                    memory: 256Mi
+                ports:
+                - containerPort: 6379
+                  name: redis
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+          name: azure-vote-back
+          spec:
+          ports:
+          - port: 6379
+          selector:
+            app: azure-vote-back
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+          name: azure-vote-front
+          spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: azure-vote-front
+          template:
+            metadata:
+              labels:
+                app: azure-vote-front
+            spec:
+              nodeSelector:
+                "beta.kubernetes.io/os": linux
+              containers:
+              - name: azure-vote-front
+                image: microsoft/azure-vote-front:v1
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+                  limits:
+                    cpu: 250m
+                    memory: 256Mi
+                ports:
+                - containerPort: 80
+                env:
+                -
+
+          name: REDIS
+                  value: "azure-vote-back"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+          name: azure-vote-front
+          spec:
+          type: LoadBalancer
+          ports:
+          - port: 80
+          selector:
+            app: azure-vote-front
+          EOT
+        - cat azure-vote.yaml
+        # deploy the app
+        # - kubectl apply -f azure-vote.yaml
+        # follow the status 
+        # As soon as an external IP is available for the service paste it in browser        
+        # - kubectl get service azure-vote-front --watch
       after_success:
         - deactivate
