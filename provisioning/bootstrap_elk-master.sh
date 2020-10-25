@@ -79,9 +79,10 @@ systemctl status elasticsearch
 # required by netstat
 apt-get install -yqq net-tools
 
-netstat -plntu
 sleep 60 # make sure curl does not fail
+netstat -plntu
 curl -XGET 'localhost:9200/?pretty' #curl: (7) Failed to connect to localhost port 9200: Connection refused
+
 
 echo "===============================# Install and Configure Kibana Dashboard=========================================================="
 # Install and Configure Kibana Dashboard
@@ -101,6 +102,7 @@ systemctl status kibana
 
 
 # The kibana dashboard is now up and running on the 'localhost' address and the default port '5601'
+sleep 60 # make sure curl does not fail
 netstat -plntu
 
 echo "===============================# Install and Configure Nginx as Reverse-Proxy for Kibana=========================================================="
