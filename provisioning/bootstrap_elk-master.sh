@@ -24,7 +24,7 @@ echo "                 ||----w |                                                
 echo "                 ||     ||                                                         "
 echo "========================================================================================="
 
-
+echo "==================================Install Elastic Stack======================================================="
 apt-get install -qqy software-properties-common apt-transport-https
 
 # Java is required for the Elastic stack deployment.
@@ -70,6 +70,7 @@ apt-get update -qq && apt-get install -yqq elasticsearch
 # http.port: 9200
 cat /etc/elasticsearch/elasticsearch.yml
 # vim elasticsearch.yml
+cp /vagrant/configs/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
 
 systemctl start elasticsearch
 systemctl enable elasticsearch
@@ -79,8 +80,9 @@ systemctl status elasticsearch
 apt-get install -yqq net-tools
 
 netstat -plntu
-curl -XGET 'localhost:9200/?pretty'
+curl -XGET 'localhost:9200/?pretty' #curl: (7) Failed to connect to localhost port 9200: Connection refused
 
+echo "===============================# Install and Configure Kibana Dashboard=========================================================="
 # Install and Configure Kibana Dashboard
 apt-get install -yqq kibana 
 
@@ -90,6 +92,7 @@ apt-get install -yqq kibana
 # server.port: 5601
 # server.host: "localhost"
 # elasticsearch.url: "http://localhost:9200"
+cp /vagrant/configs/kibana.yml /etc/kibana/kibana.yml
 
 systemctl start kibana
 systemctl enable kibana
@@ -99,7 +102,62 @@ systemctl status kibana
 # The kibana dashboard is now up and running on the 'localhost' address and the default port '5601'
 netstat -plntu
 
-# Install and Configure Nginx as Reverse-Proxy for Kibana
+echo "===============================# Install and Configure Nginx as Reverse-Proxy for Kibana=========================================================="
 # the Nginx web server as a reverse proxy for the Kibana Dashboard.
-
 apt-get install -yqq nginx apache2-utils 
+
+#  create new virtual host file named 'kibana'
+cp /vagrant/configs/kibana /etc/nginx/sites-available/kibana
+
+# create new basic authentication web server for accessing the Kibana dashboard.
+# htpasswd -c /etc/nginx/.kibana-user elastic
+
+# Activate the kibana virtual host and test all nginx configuration.
+ln -s /etc/nginx/sites-available/kibana /etc/nginx/sites-enabled/
+
+nginx -t
+# nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+# nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+systemctl start nginx
+systemctl enable nginx
+systemctl status nginx
+
+echo "===============================# Install and Configure Logstash=========================================================="
+# check the OpenSSL Version
+openssl version -a
+# OpenSSL 1.1.1f  31 Mar 2020
+# built on: Mon Apr 20 11:53:50 2020 UTC
+# platform: debian-amd64
+# options:  bn(64,64) rc4(16x,int) des(int) blowfish(ptr)
+# compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -Wa,--noexecstack -g -O2 -fdebug-prefix-map=/build/openssl-P_ODHM/openssl-1.1.1f=. -fstack-protector-strong -Wformat -Werror=format-security -DOPENSSL_TLS_SECURITY_LEVEL=2 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DKECCAK1600_ASM -DRC4_ASM -DMD5_ASM -DAESNI_ASM -DVPAES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DX25519_ASM -DPOLY1305_ASM -DNDEBUG -Wdate-time -D_FORTIFY_SOURCE=2
+# OPENSSLDIR: "/usr/lib/ssl"
+# ENGINESDIR: "/usr/lib/x86_64-linux-gnu/engines-1.1"
+# Seeding source: os-specific
+
+# Install logstash
+apt-get install -yqq logstash  
+
+# create new SSL directory under the logstash configuration directory '/etc/logstash' 
+mkdir -p /etc/logstash/ssl && cd /etc/logstash/
+
+# Generate the SSL certificate for Logstash
+# The SSL certificate files for Logstash has been created on the '/etc/logstash/ssl' directory
+openssl req -subj '/CN=elk-master/' -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout ssl/logstash-forwarder.key -out ssl/logstash-forwarder.crt
+
+# create a configuration file 'filebeat-input.conf' as input file from filebeat
+cp /vagrant/configs/filebeat-input.conf /etc/logstash/conf.d/filebeat-input.conf
+
+# create a configuration file 'syslog-filter.conf' for syslog processing
+# For the syslog processing log data, use the filter plugin named 'grok' to parse the syslog files
+cp /vagrant/configs/syslog-filter.conf /etc/logstash/conf.d/syslog-filter.conf
+
+# create a configuration file 'output-elasticsearch.conf' file to define the Elasticsearch output
+cp /vagrant/configs/output-elasticsearch.conf /etc/logstash/conf.d/output-elasticsearch.conf
+
+systemctl start logstash
+systemctl enable logstash
+systemctl status logstash
+
+# Check the logstash service  port '5443'.
+netstat -plntu
