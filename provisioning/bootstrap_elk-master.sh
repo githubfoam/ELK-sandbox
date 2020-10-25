@@ -80,6 +80,7 @@ systemctl status elasticsearch
 apt-get install -yqq net-tools
 
 netstat -plntu
+sleep 60 # make sure curl does not fail
 curl -XGET 'localhost:9200/?pretty' #curl: (7) Failed to connect to localhost port 9200: Connection refused
 
 echo "===============================# Install and Configure Kibana Dashboard=========================================================="
