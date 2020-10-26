@@ -59,7 +59,7 @@ vagrant plugin install vagrant-mutate #Convert vagrant boxes to work with differ
 # https://github.com/chef/bento/tree/master/packer_templates/centos
 vagrant box add "bento/centos-7.8" --provider=virtualbox
 vagrant mutate "bento/centos-7.8" libvirt
-# vagrant init --template Vagrantfile.template.erb 
+vagrant init --template Vagrantfile.provision.bash.erb 
 # # must be created in project root directory with Vagrantfile template file
 vagrant up --provider=libvirt "spacewalk-server"
 vagrant up --provider=libvirt "spacewalk-client01"
