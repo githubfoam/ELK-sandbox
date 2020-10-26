@@ -64,7 +64,8 @@ firewall-cmd --runtime-to-perm
  firewall-cmd --reload
 #  Enable Firewalld
 #  systemctl enable firewalld
- systemctl restart firewalld
+systemctl restart firewalld
+systemctl status firewalld
 
 # # Configuring Spacewalk with an Answer File
 # spacewalk-setup --answer-file=/vagrant/configs/answers-PostgreSQL

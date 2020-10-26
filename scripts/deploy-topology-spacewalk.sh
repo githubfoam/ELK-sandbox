@@ -62,8 +62,11 @@ vagrant mutate "bento/centos-7.8" libvirt
 vagrant init --template Vagrantfile.provision.bash.erb 
 # # must be created in project root directory with Vagrantfile template file
 vagrant up --provider=libvirt "spacewalk-server"
+sleep 120 # 6 mins -> download the ssl certificate from spacewalk server
 vagrant up --provider=libvirt "spacewalk-client01"
+sleep 120 # 4 mins
 vagrant up --provider=libvirt "spacewalk-client02"
+sleep 120 # 2 mins
 
 # #https://github.com/chef/bento/tree/master/packer_templates/fedora
 # vagrant box add "bento/fedora-32" --provider=virtualbox
