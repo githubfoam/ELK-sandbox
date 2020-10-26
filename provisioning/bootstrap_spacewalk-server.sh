@@ -43,6 +43,7 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 # Spacewalk uses database server to store its primary data. 
 # PostgreSQL server, set up by Spacewalk (embedded)
 yum -yq install spacewalk-setup-postgresql
+yum -yq install spacewalk-postgresql 
 
 #  Enable Firewalld
  systemctl enable firewalld

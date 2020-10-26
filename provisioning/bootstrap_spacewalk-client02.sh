@@ -34,6 +34,7 @@ yum install epel-release -y
 yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin osad rhncfg-actions rhncfg-management -y
 
 # download the ssl certificate from spacewalk server
+yum install wget -y  
 wget -O /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT http://spacewalk-server.local/pub/RHN-ORG-TRUSTED-SSL-CERT
 
 # register with the activation key 
