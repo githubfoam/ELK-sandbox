@@ -52,7 +52,7 @@ Vagrant.configure(2) do |config|
                     vb.name = "vbox-spacewalk-server"
                     vb.memory = "4096"
                 end
-                k8scluster.vm.provision :shell, path: "provisioning/bootstrap_bootstrap_spacewalk-server.sh"
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap_spacewalk-server.sh"
               end              
 
              config.vm.define "spacewalk-client01" do |k8scluster|
