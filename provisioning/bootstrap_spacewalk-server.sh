@@ -44,12 +44,17 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 # PostgreSQL server, set up by Spacewalk (embedded)
 yum -yq install spacewalk-setup-postgresql
 
+#  Enable Firewalld
+ systemctl enable firewalld
+ systemctl restart firewalld
+
 # Configuring the firewall
 # Use system-config-firewall or 
 # edit /etc/sysconfig/iptables, adding the ports needed -- 80 and 443.
 # Add port 5222 if you want to push actions to client machines 
 # and 5269 for push actions to a Spacewalk Proxy, 
 # 69 udp if you want to use tftp
+
 firewall-cmd --add-service=http
 firewall-cmd --add-service=https
 firewall-cmd --runtime-to-perm
@@ -57,7 +62,7 @@ firewall-cmd --runtime-to-perm
 #  reload the firewall.
  firewall-cmd --reload
 #  Enable Firewalld
- systemctl enable firewalld
+#  systemctl enable firewalld
  systemctl restart firewalld
 
 # Configuring Spacewalk with an Answer File
