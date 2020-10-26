@@ -35,18 +35,18 @@ yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin o
 
 # download the ssl certificate from spacewalk server
 yum install wget -y  
-wget -O /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT http://spacewalk-server.local/pub/RHN-ORG-TRUSTED-SSL-CERT
+# wget -O /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT http://spacewalk-server.local/pub/RHN-ORG-TRUSTED-SSL-CERT
 
-# register with the activation key 
-rhnreg_ks --force --activationkey="1-centos7" --serverUrl=http://spacewalk.sunil.cc/XMLRPC --sslCACert=/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT --profilename=$HOSTNAME
+# # register with the activation key 
+# rhnreg_ks --force --activationkey="1-centos7" --serverUrl=http://spacewalk.sunil.cc/XMLRPC --sslCACert=/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT --profilename=$HOSTNAME
 
-Syncing the profile with spacewalk
-rhn-profile-sync
+# Syncing the profile with spacewalk
+# rhn-profile-sync
 
-systemctl enable osad
-systemctl restart osad
-systemctl status osad
-rhn-actions-control --enable-all
+# systemctl enable osad
+# systemctl restart osad
+# systemctl status osad
+# rhn-actions-control --enable-all
 
-# do a profile sync
-rhn-profile-sync
+# # do a profile sync
+# rhn-profile-sync
