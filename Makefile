@@ -1,6 +1,9 @@
 IMAGE := alpine/fio
 APP:="app/deploy-openesb.sh"
 
+deploy-topology-spacewalk:
+	bash scripts/deploy-topology-spacewalk.sh
+
 deploy-topology:
 	bash scripts/deploy-topology.sh
 

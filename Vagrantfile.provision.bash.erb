@@ -44,4 +44,36 @@ Vagrant.configure(2) do |config|
                 k8scluster.vm.provision :shell, path: "provisioning/bootstrap_elk-client02.sh"
               end
 
+             config.vm.define "spacewalk-server" do |k8scluster|
+                k8scluster.vm.box = "bento/centos-7.8"
+                k8scluster.vm.hostname = "spacewalk-server"
+                k8scluster.vm.network "private_network", ip: "192.168.1.20"                                
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-spacewalk-server"
+                    vb.memory = "4096"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap_bootstrap_spacewalk-server.sh"
+              end              
+
+             config.vm.define "spacewalk-client01" do |k8scluster|
+                k8scluster.vm.box = "bento/centos-7.8"
+                k8scluster.vm.hostname = "spacewalk-client01"
+                k8scluster.vm.network "private_network", ip: "192.168.1.21"                                
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-spacewalk-client01"
+                    vb.memory = "4096"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap_spacewalk-client01.sh"
+              end 
+
+             config.vm.define "spacewalk-client02" do |k8scluster|
+                k8scluster.vm.box = "bento/centos-7.8"
+                k8scluster.vm.hostname = "spacewalk-client02"
+                k8scluster.vm.network "private_network", ip: "192.168.1.22"                                
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-spacewalk-client02"
+                    vb.memory = "4096"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap_spacewalk-client02.sh"
+              end 
 end

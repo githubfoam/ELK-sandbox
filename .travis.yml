@@ -8,8 +8,7 @@ matrix:
   fast_finish: true
   include:
 
-# https://docs.rundeck.com/docs/administration/install/linux-rpm.html#rundeck-enterprise  
-    - name: "centos provision bash Python 3.7 on bionic amd64"
+    - name: "ELK topology provision bash Python 3.7 on bionic amd64"
       dist: bionic
       arch: amd64
       language: python
@@ -27,3 +26,22 @@ matrix:
         - deactivate
         - sudo vagrant destroy -f # required to run Vagrantfile template        
         - sudo rm Vagrantfile # required to run Vagrantfile template
+
+    - name: "spacewalk topology provision bash Python 3.7 on bionic amd64"
+      dist: bionic
+      arch: amd64
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - sudo make deploy-vagrant
+        - sudo make deploy-libvirt
+        - sudo make deploy-topology-spacewalk
+      after_success:
+        - deactivate
+        - sudo vagrant destroy -f # required to run Vagrantfile template        
+        - sudo rm Vagrantfile # required to run Vagrantfile template        
