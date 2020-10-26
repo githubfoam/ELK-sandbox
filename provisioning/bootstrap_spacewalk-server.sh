@@ -65,16 +65,16 @@ firewall-cmd --runtime-to-perm
 #  systemctl enable firewalld
  systemctl restart firewalld
 
-# Configuring Spacewalk with an Answer File
-spacewalk-setup --answer-file=/vagrant/configs/answers-PostgreSQL
+# # Configuring Spacewalk with an Answer File
+# spacewalk-setup --answer-file=/vagrant/configs/answers-PostgreSQL
 
-# Managing Spacewalk
-/usr/sbin/spacewalk-service start
+# # Managing Spacewalk
+# /usr/sbin/spacewalk-service start
 
-curl http://192.168.1.20
+# curl http://192.168.1.20
 
-yum whatprovides */netstat
-yum install -qy net-tools
+# yum whatprovides */netstat
+# yum install -qy net-tools
 
-# Check the logstash service  port '5443'.
-netstat -plntu
+# # Check the logstash service  port '5443'.
+# netstat -plntu
