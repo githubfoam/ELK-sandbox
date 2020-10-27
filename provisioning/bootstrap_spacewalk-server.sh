@@ -6,9 +6,9 @@ set -o xtrace
 # set -eox pipefail #safety for script
 
 hostnamectl set-hostname elk-master
-echo "192.168.1.20 spacewalk-server.local spacewalk-server" |sudo tee -a /etc/hosts
-echo "192.168.1.21 spacewalk-client01.local spacewalk-client01" |sudo tee -a /etc/hosts
-echo "192.168.1.22 spacewalk-client02.local spacewalk-client02" |sudo tee -a /etc/hosts
+echo "192.168.50.20 spacewalk-server.local spacewalk-server" |sudo tee -a /etc/hosts
+echo "192.168.50.21 spacewalk-client01.local spacewalk-client01" |sudo tee -a /etc/hosts
+echo "192.168.50.22 spacewalk-client02.local spacewalk-client02" |sudo tee -a /etc/hosts
 cat /etc/hosts
 
 echo "nameserver 8.8.8.8" |sudo tee -a /etc/resolv.conf
@@ -67,16 +67,16 @@ firewall-cmd --runtime-to-perm
 systemctl restart firewalld
 systemctl status firewalld
 
-# # Configuring Spacewalk with an Answer File
-# spacewalk-setup --answer-file=/vagrant/configs/answers-PostgreSQL
+# Configuring Spacewalk with an Answer File
+spacewalk-setup --answer-file=/vagrant/configs/answers-PostgreSQL
 
-# # Managing Spacewalk
-# /usr/sbin/spacewalk-service start
+# Managing Spacewalk
+/usr/sbin/spacewalk-service start
 
-# curl http://192.168.1.20
+curl http://192.168.50.20
 
-# yum whatprovides */netstat
-# yum install -qy net-tools
+yum whatprovides */netstat
+yum install -qy net-tools
 
-# # Check the logstash service  port '5443'.
-# netstat -plntu
+# Check the logstash service  port '5443'.
+netstat -plntu

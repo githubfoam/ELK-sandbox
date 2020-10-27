@@ -6,9 +6,9 @@ set -o xtrace
 # set -eox pipefail #safety for script
 
 hostnamectl set-hostname elk-master
-echo "192.168.1.20 spacewalk-server.local spacewalk-server" |sudo tee -a /etc/hosts
-echo "192.168.1.21 spacewalk-client01.local spacewalk-client01" |sudo tee -a /etc/hosts
-echo "192.168.1.22 spacewalk-client02.local spacewalk-client02" |sudo tee -a /etc/hosts
+echo "192.168.50.20 spacewalk-server.local spacewalk-server" |sudo tee -a /etc/hosts
+echo "192.168.50.21 spacewalk-client01.local spacewalk-client01" |sudo tee -a /etc/hosts
+echo "192.168.50.22 spacewalk-client02.local spacewalk-client02" |sudo tee -a /etc/hosts
 cat /etc/hosts
 
 echo "nameserver 8.8.8.8" |sudo tee -a /etc/resolv.conf
