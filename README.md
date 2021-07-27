@@ -12,5 +12,11 @@ Travis (.com) feature_topology branch:
 [![Build Status](https://travis-ci.com/githubfoam/ELK-sandbox.svg?branch=feature_topology)](https://travis-ci.com/githubfoam/ELK-sandbox) 
 
 ~~~~
+del Vagrantfile
+vagrant init --template Vagrantfile.erb 
+vagrant up --provider=libvirt "vg-compute-06"
+
+vagrant up  vg-docker-01
+
 https://www.elastic.co/what-is/elk-stack
 ~~~~

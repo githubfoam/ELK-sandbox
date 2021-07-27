@@ -1,0 +1,16 @@
+---
+
+elasticsearch_image: docker.io/elasticsearch:7.6.2   
+elasticsearch_hostname: vg-docker-01  
+
+network_name: elastic
+
+log_driver: "json-file"
+log_max_size: "10m"
+log_max_file: "3"
+
+#Changed password for user elastic
+vault_elastic_password: oOYUXhSg2DcImWEsPpR5
+
+elastic_password: "{{ vault_elastic_password }}"
+

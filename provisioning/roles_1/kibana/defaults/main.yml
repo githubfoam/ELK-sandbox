@@ -1,0 +1,9 @@
+---
+
+# server_name: <your_server_ip>
+server_name: 192.168.18.9
+
+kibana_image: docker.io/kibana:7.6.2   
+kibana_hostname: ki01
+
+kibana_password: "{{ vault_kibana_password }}"

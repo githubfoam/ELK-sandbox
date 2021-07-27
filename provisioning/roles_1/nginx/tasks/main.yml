@@ -1,0 +1,35 @@
+---
+
+- name: Ensure nginx conf dir exists
+  file:
+    path: "{{ nginx_conf_dir }}/pipeline"
+    state: directory
+
+
+- name: Copy nginx pipeline conf
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: 'templates/nginx.conf', dest: '/{{ nginx_conf_dir }}/pipeline/nginx.conf' }
+
+
+
+- name: Start nginx container
+  docker_container:
+    name: ng01
+    image: nginx:1.15-alpine
+    ports:
+    - 8084:80
+    - 443:443
+   
+    links:
+    - ki01
+    volumes:
+    - "{{ nginx_conf_dir }}/pipeline:/etc/nginx/conf.d/pipeline:ro"
+   # - "{{ certbot_conf_dir }}/:/etc/letsencrypt/"
+   # - "{{ certbot_conf_dir }}/www/:/var/www/certbot/"
+    networks:
+    - name: "{{ network_name }}"
+    log_driver: "{{ log_driver }}"
+    log_options:
+      max-size: "{{ log_max_size }}"
+      max-file: "{{ log_max_file }}"

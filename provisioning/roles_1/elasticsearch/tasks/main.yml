@@ -1,0 +1,59 @@
+---
+
+- name: Install Docker SDK for Python
+  pip:
+    name: "docker<5" 
+
+- name: Create elastic search volume
+  docker_volume:
+    name: esdata
+    driver: local
+
+- name: Start elastic search container
+  docker_container:
+    name: "{{ elasticsearch_hostname }}"
+    image: "{{ elasticsearch_image }}"
+    env:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      xpack.security.enabled: "true"
+      xpack.monitoring.collection.enabled: "true"
+    volumes:
+    - "esdata:/usr/share/elasticsearch/data"
+    ulimits:
+    - nofile:65535:65535
+    # networks:
+    # - name: "{{ network_name }}"
+    state: started
+    log_driver: "{{ log_driver }}"
+    log_options:
+      max-size: "{{ log_max_size }}"
+      max-file: "{{ log_max_file }}"
+    ports:
+     - 9200:9200
+
+- debug:
+    msg: >
+      Users have to be configured manually. Enable and set the password for the default users with:
+      `docker exec -it {{ elasticsearch_hostname }} /bin/bash -c "elasticsearch-setup-passwords auto"`
+      Then edit the `vaul.yml` file and copy the password values to the expected variable.
+
+# - name: run the elasticsearch container
+#   docker_container:
+#     name: elasticsearch
+#     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.5.2
+#     restart_policy: always
+#     ulimits: memlock:-1:-1
+#     network_mode: host
+#     volumes:
+#       - "/var/lib/elastiflow_es:/usr/share/elasticsearch/data"
+#     env:
+#       ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+#       cluster.name: "elasticsearch"
+#       bootstrap.memory_lock: "true"
+#       network.host: "0.0.0.0"
+#       http.port: "9200"
+#       discovery.type: "single-node"
+#       indices.query.bool.max_clause_count: "8192"
+#       search.max_buckets: "100000"
+#       action.destructive_requires_name: "true"

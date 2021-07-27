@@ -1,0 +1,6 @@
+---
+
+logstash_image: docker.io/logstash:7.6.2   
+logstash_hostname: lo01
+logstash_conf_dir: /usr/share/logstash
+
