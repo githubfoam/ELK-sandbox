@@ -57,6 +57,49 @@ jobs:
         source ~venvpy3/bin/activate
         pip install -r requirements.txt 
         virtualenv --version
+    - name: "deactivate virtualenv"
+      run: deactivate  
+
+# https://elk-docker.readthedocs.io/
+  ubuntu-2004-elk-docker-job:
+    name: "ubuntu-20.04 jenkins virtualenv job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        # the image containing Elasticsearch 1.7.3, Logstash 1.5.5, and Kibana 4.1.2 
+        #(which is the last image using the Elasticsearch 1.x and Logstash 1.x branches) bears the tag E1L1K4
+        #Pulling specific version combinations 
+        sudo docker pull sebp/elk:E1L1K4
+        docker ps
+    - name: "deactivate virtualenv"
+      run: deactivate 
+
+# run ansible w docker compose?
+# https://logz.io/blog/elk-stack-on-docker/
+# https://github.com/deviantony/docker-elk
+  ubuntu-2004-elk-dockercompose-job:
+    name: "ubuntu-20.04 jenkins virtualenv job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
         git clone https://github.com/deviantony/docker-elk.git
         cd docker-elk
         docker-compose up -d
@@ -86,4 +129,4 @@ jobs:
         # sudo ./metricbeat -e -c metricbeat.yml -d "publish"
         # curl -XGET 'localhost:9200/_cat/indices?v&pretty'
     - name: "deactivate virtualenv"
-      run: hostnamectl status   
+      run: deactivate  
