@@ -58,7 +58,7 @@ jobs:
         pip install -r requirements.txt 
         virtualenv --version
         git clone https://github.com/deviantony/docker-elk.git
-        cd /docker-elk
+        cd docker-elk
         docker-compose up -d
         docker ps
         curl http://localhost:9200/_security/_authenticate
