@@ -1,0 +1,6 @@
+---
+
+nginx_image: nginx:1.15-alpine
+nginx_hostname: ng01
+nginx_conf_dir: /usr/share/nginx
+

@@ -1,28 +1,35 @@
 ---
 
-- name: "Deploy docker-ce"
+- name: "Deploy ELK stack w metricbeat"
   gather_facts: true
-  hosts:  vg-docker-01
+  hosts:  vg-docker-02
   become: yes
-  vars:
-    # ansible_python_interpreter: /bin/python3
-    #Changed password for user kibana
-    vault_kibana_password: H9H9YOuu75SwFYKSTIVJ
-    #Changed password for user elastic
-    vault_elastic_password: oOYUXhSg2DcImWEsPpR5
   pre_tasks:
   - name: "Setting hostname"
     shell: "hostnamectl set-hostname {{ inventory_hostname }}"
   roles:
     - common
-    - docker
-    - docker-init
-    - clean
+    - java
     - elasticsearch
     - kibana
     - logstash
-    # - heartbeat
-    - filebeat
+    # - filebeat 
+    - metricbeat
+    
+
+- name: "Deploy ELK stack w filebeat"
+  gather_facts: true
+  hosts:  vg-docker-03
+  become: yes
+  pre_tasks:
+  - name: "Setting hostname"
+    shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+  roles:
+    - common
+    - java
+    - elasticsearch
+    - kibana
+    - logstash
+    - filebeat 
     # - metricbeat
-    - nginx
-    # - heartbeat-watcher
+    

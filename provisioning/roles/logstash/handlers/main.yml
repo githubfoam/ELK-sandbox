@@ -1,4 +1,11 @@
-- name: Restart logstash container
-  docker_container:
-    name: "{{ logstash_hostname }}"
-    restart: true
+# - name: Restart nginx container
+#   docker_container:
+#     name: ng01
+#     restart: true
+
+- name: Restart Logstash
+  service: 
+    name: logstash 
+    state: restarted
+    enabled: yes
+  ignore_errors: true

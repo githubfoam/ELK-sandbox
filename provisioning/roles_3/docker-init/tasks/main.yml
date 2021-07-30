@@ -9,6 +9,6 @@
     name: docker
     state: started
 
-# - name: Create docker network
-#   docker_network:
-#     name: "{{ network_name }}"
+- name: Create docker network
+  docker_network:
+    name: "{{ network_name }}"
