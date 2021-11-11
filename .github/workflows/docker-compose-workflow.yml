@@ -45,6 +45,7 @@ jobs:
         deactivate
     - name: "docker compose elk"
       run: |
+        ls -lai
         docker-compose -f dockercomposefiles/docker-compose-elk.yml up
 
 
