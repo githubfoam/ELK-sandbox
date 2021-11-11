@@ -40,7 +40,7 @@ jobs:
         source ~venvpy3/bin/activate
         pip install -r requirements.txt 
         virtualenv --version
-        docker-compose -f dockercomposefiles/docker-compose-elk.yml up
+        # docker-compose -f dockercomposefiles/docker-compose-elk.yml up
         pip list
         deactivate
     - name: "docker compose elk"
