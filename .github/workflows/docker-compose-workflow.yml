@@ -53,6 +53,7 @@ jobs:
         stat dockercomposefiles/docker-compose-elk.yml
         # .FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/dockercomposefiles/docker-compose-elk.yml'
         # docker-compose -f ~/dockercomposefiles/docker-compose-elk.yml up
+        # build path /home/runner/work/ELK-sandbox/ELK-sandbox/dockercomposefiles/elasticsearch either does not exist, is not accessible, or is not a valid URL.
         docker-compose -f ${COMPOSE_FILE} up
 
 
