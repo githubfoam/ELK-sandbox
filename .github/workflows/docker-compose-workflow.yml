@@ -29,6 +29,8 @@ jobs:
   ubuntu-1804-virtualenv-job:
     name: "ubuntu-18.04 jenkins virtualenv job"
     runs-on: ubuntu-18.04
+    env:
+      COMPOSE_FILE: "${{ github.workspace }}/docker-compose-elk.yml"
     steps:
     - uses: actions/checkout@v2
     - name: "os fingerprinting"
@@ -49,7 +51,9 @@ jobs:
         # .FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/dockercomposefiles/docker-compose-elk.yml'
         # docker-compose -f ~/dockercomposefiles/docker-compose-elk.yml up
         stat dockercomposefiles/docker-compose-elk.yml
-        docker-compose -f ~/dockercomposefiles/docker-compose-elk.yml up
+        # .FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/dockercomposefiles/docker-compose-elk.yml'
+        # docker-compose -f ~/dockercomposefiles/docker-compose-elk.yml up
+        docker-compose -f ${COMPOSE_FILE} up
 
 
 #   ubuntu-2004-virtualenv-job:
