@@ -46,7 +46,8 @@ jobs:
     - name: "docker compose elk"
       run: |
         ls -lai
-        stat ~/dockercomposefiles/docker-compose-elk.yml
+        # stat ~/dockercomposefiles/docker-compose-elk.yml
+        stat dockercomposefiles/docker-compose-elk.yml
         docker-compose -f ~/dockercomposefiles/docker-compose-elk.yml up
 
 
