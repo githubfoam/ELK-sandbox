@@ -30,7 +30,7 @@ jobs:
     name: "ubuntu-18.04 jenkins virtualenv job"
     runs-on: ubuntu-18.04
     env:
-      COMPOSE_FILE: "${{ github.workspace }}/docker-compose-elk.yml"
+      COMPOSE_FILE: "${{ github.workspace }}/dockercomposefiles/docker-compose-elk.yml"
     steps:
     - uses: actions/checkout@v2
     - name: "os fingerprinting"
