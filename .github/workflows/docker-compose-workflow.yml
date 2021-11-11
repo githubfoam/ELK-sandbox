@@ -15,7 +15,7 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v2
   #   - name: "os fingerprinting"
-      run: hostnamectl status    
+      # run: hostnamectl status    
     # - name: "python2 virtualenv"
     #   run: |
     #     pip install virtualenv
