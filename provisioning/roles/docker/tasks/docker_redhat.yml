@@ -1,0 +1,94 @@
+---
+
+# https://docs.docker.com/engine/install/centos/
+
+# - name: "Uninstall old versions"
+#   package:
+#     name: "{{ item }}"
+#     state: absent
+#   with_items:
+#     - docker-ce
+#     - docker
+#     - docker-client
+#     - docker-client-latest
+#     - docker-common
+#     - docker-latest
+#     - docker-latest-logrotate
+#     - docker-logrotate
+#     - docker-engine
+
+
+- name: "Uninstall old versions"
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-engine
+
+- name: "Delete all images, containers, and volumes"
+  file:
+    path: /var/lib/docker
+    state: absent
+
+- name: "Install the yum-utils package "
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - yum-utils
+
+
+# - name: "Add docker repository"
+#   yum_repository:
+#     name: docker-ce
+#     description: docker-ce repository
+#     file: docker-ce
+#     baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+#     gpgcheck: yes
+#     gpgkey: https://download.docker.com/linux/centos/gpg
+
+# - name: "Add docker repository"
+#   yum_repository:
+#     name: docker-ce
+#     description: docker-ce repository
+#     file: docker-ce
+#     baseurl:  https://download.docker.com/linux/centos/docker-ce.repo
+#     gpgcheck: yes
+#     gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: "Add docker repository"
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+- name: "Install Docker Engine"
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+
+- name: "Make sure docker service is running"
+  systemd:
+    state: started
+    enabled: yes
+    name: docker
+- name: "Ensure group docker exists"
+  group:
+    name: docker
+    state: present
+- name: "Manage Docker as a non-root user"
+  user:
+    name: vagrant
+    groups: docker
+    append: yes

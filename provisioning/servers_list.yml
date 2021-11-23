@@ -1,9 +1,9 @@
 ---
   - vagrant_box_host: "vg-docker-02"
     # vagrant_box: "bento/ubuntu-16.04"
-    vagrant_box: "bento/ubuntu-18.04"
+    vagrant_box: "bento/ubuntu-20.04"
     vbox_name: "vbox-docker-02"
-    vbox_ram: 2048
+    vbox_ram: 512
     vbox_cpu: 2
     network_type: "private_network"
     vagrant_box_ip: 192.168.18.10
@@ -36,3 +36,24 @@
     shell_provision: "provisioning/bootstrap.sh"
     # ansible_version: "2.9.2"
     ansible_compatibility_mode: "2.0"
+
+  - vagrant_box_host: "vg-docker-04"
+    vagrant_box: "bento/centos-stream-8"
+    # vagrant_box: "centos/7"
+    # vagrant_box: "bento/centos-8.3"
+    # vagrant_box: "bento/ubuntu-16.04"
+    # vagrant_box: "bento/ubuntu-18.04"
+    # vagrant_box: "bento/ubuntu-20.04" # NOT OK
+    vbox_name: "vbox-docker-04"
+    vbox_ram: 1024
+    vbox_cpu: 2
+    network_type: "private_network"
+    vagrant_box_ip: 192.168.20.12
+    guest_port: 9200
+    host_port: 9200
+    guest_port_1: 5601
+    host_port_1: 5601
+    server_bootstrap: "provisioning/deploy.yml"
+    shell_provision: "provisioning/bootstrap.sh"
+    # ansible_version: "2.9.2"
+    ansible_compatibility_mode: "2.0"    

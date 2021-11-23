@@ -1,0 +1,139 @@
+name: "dockerized ELK workflow"
+
+
+on:
+  push:
+    branches: [ test ]
+
+jobs:
+
+
+  ubuntu-1804-virtualenv-job:
+    name: "ubuntu-18.04 jenkins virtualenv job"
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        pip list
+        deactivate
+
+  ubuntu-2004-virtualenv-job:
+    name: "ubuntu-20.04 jenkins virtualenv job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+    - name: "deactivate virtualenv"
+      run: deactivate  
+
+# https://elk-docker.readthedocs.io/
+  ubuntu-2004-elk-docker-job:
+    name: "ubuntu-20.04 elk-docker job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "Pulling specific version combinations ELK"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        # the image containing Elasticsearch 1.7.3, Logstash 1.5.5, and Kibana 4.1.2 
+        #(which is the last image using the Elasticsearch 1.x and Logstash 1.x branches) bears the tag E1L1K4
+        #Pulling specific version combinations 
+        sudo docker pull sebp/elk:E1L1K4
+        docker image ls
+        sudo docker run -p 5601:5601 -p 9200:9200 -p 5044:5044 -it --name elk sebp/elk:E1L1K4
+        docker ps
+        deactivate 
+    - name: "Pulling latest version ELK"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version 
+        sudo docker pull sebp/elk
+        docker image ls       
+        sudo docker run -p 5601:5601 -p 9200:9200 -p 5044:5044 -it --name elk sebp/elk
+        docker ps
+        deactivate 
+    - name: "Pulling docker-compose ELK"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version 
+        sudo docker-compose build elk
+        docker image ls       
+        sudo docker-compose up -d
+        docker ps
+        deactivate         
+
+# run ansible w docker compose?
+# https://logz.io/blog/elk-stack-on-docker/
+# https://github.com/deviantony/docker-elk
+  ubuntu-2004-elk-dockercompose-job:
+    name: "ubuntu-20.04 elk-docker-compose job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        git clone https://github.com/deviantony/docker-elk.git
+        cd docker-elk
+        docker-compose up -d
+        docker ps
+        # curl http://localhost:9200/_security/_authenticate
+        # {
+        #   "name" : "VO32TCU",
+        #   "cluster_name" : "docker-cluster",
+        #   "cluster_uuid" : "pFgIXMErShCm1R1cd3JgTg",
+        #   "version" : {
+        #     "number" : "6.1.0",
+        #     "build_hash" : "c0c1ba0",
+        #     "build_date" : "2017-12-12T12:32:54.550Z",
+        #     "build_snapshot" : false,
+        #     "lucene_version" : "7.1.0",
+        #     "minimum_wire_compatibility_version" : "5.6.0",
+        #     "minimum_index_compatibility_version" : "5.0.0"
+        #   },
+        #   "tagline" : "You Know, for Search"
+        # }
+        curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-6.1.2-darwin-x86_64.tar.gz
+        tar xzvf metricbeat-6.1.2-darwin-x86_64.tar.gz
+        cd metricbeat-6.1.2-darwin-x86_64
+        sudo cat metricbeat.yml
+        sudo chown root metricbeat.yml 
+        sudo chown root modules.d/system.yml 
+        # sudo ./metricbeat -e -c metricbeat.yml -d "publish"
+        # curl -XGET 'localhost:9200/_cat/indices?v&pretty'
+    - name: "deactivate virtualenv"
+      run: deactivate  

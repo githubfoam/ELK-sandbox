@@ -1,51 +1,62 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
-
-Vagrant.require_version ">= 1.6.0"
-VAGRANTFILE_API_VERSION = "2"
-# YAML module for reading box configurations.
-require 'yaml'
-#  server configs from YAML/YML file
-servers_list = YAML.load_file(File.join(File.dirname(__FILE__), 'provisioning/servers_list.yml'))
-
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
- # Disable updates
- config.vm.box_check_update = false
-
-      servers_list.each do |server|
-        config.vm.define server["vagrant_box_host"] do |box|
-          box.vm.box = server["vagrant_box"]
-          box.vm.hostname = server["vagrant_box_host"]
-          box.vm.network server["network_type"], ip: server["vagrant_box_ip"]
-          box.vm.network "forwarded_port", guest: server["guest_port"], host: server["host_port"],  id: 'elastic_port'
-          box.vm.network "forwarded_port", guest: server["guest_port_1"], host: server["host_port_1"],  id: 'kibana_port'
-          # box.vm.network "forwarded_port", guest: server["guest_port"], host: server["host_port"]
-          box.vm.provider "virtualbox" do |vb|
-              vb.name = server["vbox_name"]
-              vb.memory = server["vbox_ram"]
-              vb.cpus = server["vbox_cpu"]
-              vb.gui = false
-              vb.customize ["modifyvm", :id, "--groups", "/ELK-sandbox"] # create vbox group
-          end # end of box.vm.providers
-
-          box.vm.provision "shell", path: server["shell_provision"]
-
-          box.vm.provision "ansible_local" do |ansible|
-          # box.vm.provision :ansible do |ansible|
-              # ansible.compatibility_mode = "2.0"
-              ansible.compatibility_mode = server["ansible_compatibility_mode"]
-              # ansible.version = server["ansible_version"] # automation purposes
-              ansible.playbook = server["server_bootstrap"]
-              # ansible.inventory_path = 'provisioning/hosts'
-              # ansible.verbose = "vvvv" # debug
-           end # end if box.vm.provision
 
 
-        end # end of config.vm
-      end  # end of servers_list.each loop
-end # end of Vagrant.configure
+Vagrant.configure(2) do |config|
+  config.vm.box_check_update = false
+
+  # vbox template for all vagrant instances
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.memory = "512"
+    vb.cpus = 2
+  end
+
+             config.vm.define "vg-elk-01" do |k8scluster|
+                # k8scluster.vm.box = "bento/centos-stream-8"
+                k8scluster.vm.box = "bento/ubuntu-20.04"
+                k8scluster.vm.hostname = "vg-elk-01"
+                k8scluster.vm.network "private_network", ip: "192.168.20.15"
+                k8scluster.vm.network :forwarded_port, guest: 22, host: 2201
+                #Disabling the default /vagrant share can be done as follows:
+                k8scluster.vm.synced_folder ".", "/vagrant", disabled: true
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-elk-01"
+                    vb.memory = "512"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap.sh"
+                k8scluster.vm.provision :shell, path: "scripts/deploy-elk-v1.sh"
+              end
+
+              # use a public network is to allow the IP to be assigned via DHCP
+              # https://www.vagrantup.com/docs/networking/public_network
+              config.vm.define "vg-elk-02" do |k8scluster|
+                k8scluster.vm.box = "bento/centos-stream-8"
+                k8scluster.vm.hostname = "vg-elk-02"
+                k8scluster.vm.network "public_network"
+                #Disabling the default /vagrant share can be done as follows:
+                k8scluster.vm.synced_folder ".", "/vagrant", disabled: true
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-elk-02"
+                    vb.memory = "512"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap.sh"
+                k8scluster.vm.provision :shell, path: "scripts/deploy-elk-v1.sh"
+              end
+             
+              # Static IP via DHCP  manually set the IP of your bridged interface
+              # https://www.vagrantup.com/docs/networking/public_network
+              config.vm.define "vg-elk-03" do |k8scluster|
+                k8scluster.vm.box = "bento/centos-stream-8"
+                k8scluster.vm.hostname = "vg-elk-03"
+                k8scluster.vm.network "public_network", ip: "192.168.0.17"
+                #Disabling the default /vagrant share can be done as follows:
+                k8scluster.vm.synced_folder ".", "/vagrant", disabled: true
+                k8scluster.vm.provider "virtualbox" do |vb|
+                    vb.name = "vbox-elk-03"
+                    vb.memory = "512"
+                end
+                k8scluster.vm.provision :shell, path: "provisioning/bootstrap.sh"
+                k8scluster.vm.provision :shell, path: "scripts/deploy-elk-v1.sh"
+              end              
+  
+
+end

@@ -1,35 +1,19 @@
 ---
 
-# Install Kibana 
-
-- name: Install Kibana with apt
-  apt:
-   name: kibana
-   update_cache: yes
- 
-# Configurations
-
-- name: Updating the config file to allow outside access
-  lineinfile:
-   destfile: /etc/kibana/kibana.yml
-   regexp: 'server.host:'
-   line: 'server.host: 0.0.0.0'
-
-- name: Defining server port
-  lineinfile:
-   destfile: /etc/kibana/kibana.yml
-   regexp: 'server.port:'
-   line: 'server.port: 5601'
-    
-- name: Defining Elasticsearch URL
-  lineinfile:
-   destfile: /etc/kibana/kibana.yml
-   regexp: 'elasticsearch.url:'
-   line: 'elasticsearch.url: "http://localhost:9200"'
-   
-# Starting Kibana
-
-- name: Starting Kibana
-  service:
-   name: kibana
-   state: started
+- name: Start kibana container
+  docker_container:
+    name: "{{ kibana_hostname }}"
+    image: "{{ kibana_image }}"
+    env:
+      servername: "{{ server_name }}"
+      ELASTICSEARCH_HOSTS: "http://{{ elasticsearch_hostname }}:9200"
+      ELASTICSEARCH_USERNAME: "elastic"
+      ELASTICSEARCH_PASSWORD: "{{ vault_elastic_password }}"
+    networks:
+    - name: "{{ network_name }}"
+    log_driver: "{{ log_driver }}"
+    log_options:
+      max-size: "{{ log_max_size }}"
+      max-file: "{{ log_max_file }}"
+    ports:
+       - 5601:5601

@@ -1,0 +1,30 @@
+---
+
+- name: install openjdk
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+
+- name: "create jenkins directory"
+  file:
+    path: /tmp/jenkins
+    state: directory    
+
+- name: "Make sure we have a 'wheel' group"
+  group:
+    name: wheel
+    state: present      
+
+# - name: "Add jenkins-slave1 sudoers users to wheel group"
+#   user:
+#     name=jenkins-slave1
+#     groups=wheel
+#     append=yes
+#     state=present
+#     createhome=yes    
+
+
+
+
+
+ 

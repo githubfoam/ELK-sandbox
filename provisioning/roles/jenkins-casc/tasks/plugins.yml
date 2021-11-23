@@ -1,0 +1,37 @@
+---
+
+- name: Ensure JCasC directory exists
+  file:
+    name: "{{ jenkins_casc_jenkins_home }}/casc_configs"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: 0750
+
+- name: Copy JCasC configuration file to the system
+  copy:
+    dest: "{{ jenkins_casc_jenkins_home }}/casc_configs/"
+    src: "{{ jenkins_casc_config_file }}"
+    owner: jenkins
+    group: jenkins
+    mode: 0644
+  when: jenkins_casc_config_template | length == 0
+  notify: Restart Jenkins    
+
+- name: Use template to create JCasC configuration file on the system
+  template:
+    dest: "{{ jenkins_casc_jenkins_home }}/casc_configs/jenkins.yaml"
+    src: "{{ jenkins_casc_config_template }}"
+    owner: jenkins
+    group: jenkins
+    mode: 0644
+  when: jenkins_casc_config_template | length > 0
+  notify: Restart Jenkins
+  
+- name: Add CASC_JENKINS_CONFIG environment variable to Jenkins configuration
+  lineinfile:
+    dest: "{{ jenkins_casc_jenkins_env_file }}"
+    regexp: '^export CASC_JENKINS_CONFIG='
+    line: "export CASC_JENKINS_CONFIG={{ jenkins_casc_jenkins_home }}/casc_configs/"
+  notify: Restart Jenkins    
+

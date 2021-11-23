@@ -1,0 +1,18 @@
+---
+
+# Install Logstash 
+
+- name: Install Logstash with apt
+  apt:
+    name: logstash
+    update_cache: yes
+
+# Logstash configuration
+- include: config.yml
+
+- name: Start Logstash
+  service: 
+    name: logstash 
+    state: restarted
+    enabled: yes
+  ignore_errors: true

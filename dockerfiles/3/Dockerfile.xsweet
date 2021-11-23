@@ -1,0 +1,15 @@
+FROM ubuntu:latest
+
+#Add user xsweet
+RUN groupadd -r -g 1000 xsweet && \
+useradd -r -g 1000 -d /xsweet -m -g xsweet xsweet
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+    apt-get update -y &&\
+    apt-get upgrade -y &&\
+    apt-get autoremove -y && apt-get clean 
+
+#Supervisord
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor && \
+	mkdir -p /var/log/supervisor
+CMD ["/usr/bin/supervisord", "-n"]    

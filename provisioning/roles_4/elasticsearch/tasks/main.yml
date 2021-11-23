@@ -1,0 +1,65 @@
+---
+
+# - name: Install Packages
+#   apt: name= state=latest update_cache=yes
+#   with_items:
+#     - apt-transport-https
+#     - ntp
+#     - python
+#     - tcpdump
+#     - wget
+#     - openssl
+#     - curl
+
+
+# Add Elasticsearch apt key
+
+- name: Add Elasticsearch apt key
+  apt_key:
+   url: "https://packages.elastic.co/GPG-KEY-elasticsearch"
+   state: present
+
+
+- name: Adding Elasticsearch repo
+  apt_repository:
+  #  repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+   repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+   state: present
+
+# Installing Elasticsearch
+
+- name: Install Elasticsearch
+  apt:
+   name: elasticsearch
+   update_cache: yes
+
+- name: reload systemd config
+  systemd: daemon_reload=yes
+
+- name: enable service elasticsearch and ensure it is not masked
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    masked: no
+
+# Update Elasticsearch config file to allow access (to secure Elasticsearch, bind to 'localhost'). 
+
+- name: Updating the config file to allow outside access
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'network.host:'
+   line: 'network.host: 0.0.0.0'
+ 
+# Update Elasticsearch port in config file 
+
+- name: Updating the port in config file 
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'http.port:'
+   line: 'http.port: 9200'
+ 
+# Start Elasticsearch
+- name: Starting Elasticsearch
+  service:
+   name: elasticsearch
+   state: started

@@ -1,0 +1,86 @@
+---
+
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: "Uninstall old versions"
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    # - docker-ce
+    - docker
+    - docker-engine
+    - docker.io
+    - containerd
+    - runc
+
+# https://docs.docker.com/engine/install/ubuntu/#uninstall-docker-engine
+- name: "Delete all images, containers, and volumes"
+  file:
+    path: /var/lib/docker
+    state: absent
+
+- name: "Delete all images, containers, and volumes"
+  file:
+    path: /var/lib/containerd
+    state: absent
+
+
+# [WARNING]: Could not find aptitude. Using apt-get instead fix
+- name: "APT: Install aptitude package"
+  apt:
+   name: aptitude
+   force_apt_get: yes
+
+- name: "Install packages to allow apt to use a repository over HTTPS"
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+
+- name: "Add Docker GPG key"
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+
+
+- name: "Install the latest version of Docker Engine - Community"
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+- name: "Make sure docker service is running"
+  systemd:
+    state: started
+    enabled: yes
+    name: docker
+
+- name: "Ensure group docker exists"
+  group:
+    name: docker
+    state: present
+
+- name: "Manage Docker as a non-root user"
+  user:
+    name: vagrant
+    groups: docker
+    append: yes
+
+- name: "Verify that Docker Engine is installed correctly by running the hello-world image"
+  command: docker run hello-world
+  

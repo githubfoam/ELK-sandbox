@@ -1,0 +1,8 @@
+---
+
+- name: restart jenkins
+  ansible.builtin.service:
+    name: jenkins
+    state: restarted
+  when:
+    - not ansible_check_mode | bool

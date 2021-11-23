@@ -1,0 +1,52 @@
+---
+- name: "Uninstall old versions"
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker-ce
+    - docker
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-selinux
+    - docker-engine-selinux
+    - docker-engine
+- name: "Delete all images, containers, and volumes"
+  file:
+    path: /var/lib/docker
+    state: absent
+- name: "Install docker packages "
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - dnf-plugins-core
+- name: "Install using the repository"
+  command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+- name: "Install the latest version of Docker Engine - Community"
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+- name: "Make sure docker service is running"
+  systemd:
+    state: started
+    enabled: yes
+    name: docker
+- name: "Ensure group docker exists"
+  group:
+    name: docker
+    state: present
+- name: "Manage Docker as a non-root user"
+  user:
+    name: vagrant
+    groups: docker
+    append: yes

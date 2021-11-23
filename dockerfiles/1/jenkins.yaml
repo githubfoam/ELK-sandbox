@@ -1,0 +1,9 @@
+jenkins:
+  systemMessage: "Jenkins As Code"
+  views:
+    - myView:
+        name: "Jobs Config as Code"
+# specify the seedjob groovy script that will create the  pipelines for us
+jobs:
+  - file: /usr/local/example_job_1.groovy    
+

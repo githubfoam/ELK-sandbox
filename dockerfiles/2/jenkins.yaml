@@ -1,0 +1,86 @@
+jenkins:
+  systemMessage: "Jenkins as Code!?"
+  agentProtocols:
+    - "JNLP4-connect"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  mode: NORMAL
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  quietPeriod: 5
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "Admin"
+        password: "adminpassword"
+jobs:
+  - script: >
+      organizationFolder('Bitbucket repositories') {
+        description("Jenkins job that scans all my Bitbucket projects and branches for Jenkinsfiles")
+        displayName('Bitbucket repositories')
+        organizations {
+          bitbucket {
+            serverUrl("https://mydomain.bitbucket.com")
+            repoOwner("Bitbucket repository owner")
+            credentialsId("bitbucket-key")
+            traits {        
+              webhookRegistrationTrait {
+                mode('ITEM')
+              } 
+              submoduleOptionTrait {
+                extension {
+                  disableSubmodules(false)
+                  recursiveSubmodules(true)
+                  trackingSubmodules(false)
+                  reference(null)
+                  timeout(null)
+                  parentCredentials(true)
+                }
+              }
+            }
+          }
+        }
+        configure { node ->
+            def traits = node / navigators / 'com.cloudbees.jenkins.plugins.bitbucket.BitbucketSCMNavigator' / traits
+            traits << 'com.cloudbees.jenkins.plugins.bitbucket.BranchDiscoveryTrait' {
+                strategyId('3')   
+            }
+        }
+        projectFactories {
+            workflowMultiBranchProjectFactory {
+                scriptPath 'FileThatContainsJenkinsPipeline'
+            }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            daysToKeep(-1)
+            numToKeep(-1)
+          }
+        }
+        configure { node ->
+          node / triggers / 'com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger' {
+            spec('H H * * *')
+            interval(86400000)
+          }
+        }
+      }
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          description: "Super describable description"
+          id: "Super-creative-id"
+          password: "SuperSecretPassword"
+          scope: GLOBAL
+          username: "SuperUsefulUserName"

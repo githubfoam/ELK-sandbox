@@ -1,0 +1,11 @@
+---
+# Location of the Jenkins CasC configuration file.
+# This can also be a directory which will then copy all of the file
+jenkins_casc_config_file: jenkins.yaml
+
+# Location of a Jinja template for creating the Jenkins CasC configuration file.
+# This option is mutually exclusive to and will override the jenkins_casc_config_file option.
+jenkins_casc_config_template: ""
+
+# Jenkins home directory. Role will create a folder called casc_configs here.
+jenkins_casc_jenkins_home: /var/lib/jenkins

@@ -1,0 +1,17 @@
+---
+#
+# Installing Jenkins Slave
+#
+
+- name: "Update all Ubuntu packages"
+  apt:
+    upgrade: "dist"
+
+
+- name: "Install required Ubuntu packages"
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - openjdk-8-jdk

@@ -1,0 +1,32 @@
+---
+- name: "OS fingerprinting "
+  debug:
+    msg:
+    - " ansible_os_family: {{ hostvars[inventory_hostname].ansible_os_family }} "
+    - " ansible_distribution: {{ hostvars[inventory_hostname].ansible_distribution }}"
+    - " ansible_distribution_major_version: {{ hostvars[inventory_hostname].ansible_distribution_major_version }}"
+    - " ansible_distribution_release: {{ hostvars[inventory_hostname].ansible_distribution_release }}"
+    - " ansible_distribution_version: {{ hostvars[inventory_hostname].ansible_distribution_version }}"
+
+
+# - name: "Install required packages"
+#   package:
+#     name: "{{ common_default_debian_reqs }}"
+#     state: present
+#   when: " ansible_os_family == 'Debian' and ansible_distribution in ['Debian','Ubuntu'] "
+
+# - name: "Install required packages"
+#   package:
+#     name: "{{ common_default_redhat_reqs }}"
+#     state: present
+#   when: " ansible_os_family == 'RedHat' and ansible_distribution in ['CentOS','Scientific'] "
+
+- name: "Install {{ ansible_distribution }}-{{ ansible_distribution_version }}"
+  include_tasks: "{{ ansible_distribution }}_{{ ansible_distribution_version }}_install.yml"
+
+# - name: "import assert.yml"
+#   ansible.builtin.import_tasks: assert.yml
+  # run_once: yes
+  # delegate_to: localhost
+
+

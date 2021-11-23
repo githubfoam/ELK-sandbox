@@ -9,27 +9,38 @@
     shell: "hostnamectl set-hostname {{ inventory_hostname }}"
   roles:
     - common
-    - java
-    - elasticsearch
-    - kibana
-    - logstash
-    # - filebeat 
-    - metricbeat
+    # - java
+    # - elasticsearch
+    # - kibana
+    # - logstash
+    # # - filebeat 
+    # - metricbeat
     
 
-- name: "Deploy ELK stack w filebeat"
+# - name: "Deploy ELK stack w filebeat"
+#   gather_facts: true
+#   hosts:  vg-docker-03
+#   become: yes
+#   pre_tasks:
+#   - name: "Setting hostname"
+#     shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+#   roles:
+#     - common
+#     - java
+#     - elasticsearch
+#     - kibana
+#     - logstash
+#     - filebeat 
+#     # - metricbeat
+
+- name: "Deploy jcasc w docker"
   gather_facts: true
-  hosts:  vg-docker-03
+  hosts:  vg-docker-04
   become: yes
   pre_tasks:
   - name: "Setting hostname"
     shell: "hostnamectl set-hostname {{ inventory_hostname }}"
   roles:
     - common
-    - java
-    - elasticsearch
-    - kibana
-    - logstash
-    - filebeat 
-    # - metricbeat
+    - docker
     

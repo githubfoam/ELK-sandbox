@@ -1,0 +1,22 @@
+---
+
+#
+# Installing Filebeat
+#
+
+- name: Download Filebeat RPM package
+  uri:
+    url: "{{ filebeat_rpm_url | default('https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.3.1-x86_64.rpm') }}"
+    dest: "{{ rpm_download_directory | default('/var/cache/yum/x86_64/7/extras/packages') }}"
+
+- name: Install Filebeat.
+  yum:
+    name: "{{ rpm_download_directory | default('/var/cache/yum/x86_64/7/extras/packages') }}/{{ filebeat_rpm_package | default('filebeat-6.3.1-x86_64.rpm') }}"
+    state: installed
+  register: rpm_installation
+
+- name: Ensure Filebeat is started and enabled at boot.
+  service:
+    name: filebeat
+    state: started
+    enabled: yes

@@ -1,0 +1,5 @@
+# plugins.txt
+​configuration-as-code
+#job-dsl
+#cobertura
+#parameterized-trigger

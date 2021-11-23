@@ -1,0 +1,9 @@
+---
+requirements:
+  - "openssh-server"
+  - "git"
+  - "net-tools"
+  - "wget"
+  - "lsof"
+  - "unzip"
+sshd_service_name: "sshd"
