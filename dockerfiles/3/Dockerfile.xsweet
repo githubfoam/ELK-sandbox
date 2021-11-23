@@ -15,8 +15,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor && \
 CMD ["/usr/bin/supervisord", "-n"]   
 
 #Utilities
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-minimal \
-    python-pip build-essential default-jre python-virtualenv \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+# E: Package 'python-minimal' has no installation candidate
+# E: Package 'python-pip' has no installation candidate
+    python3-pip \
+    build-essential default-jre \
+# E: Package 'python-virtualenv' has no installation candidate    
+    # python-virtualenv \
     python-setuptools git wget ssh curl
 
 RUN DEBIAN_FRONTEND=noninteractive pip install --upgrade pip && \ 
@@ -38,5 +43,33 @@ RUN mkdir -p xsweet && \
     mv elasticsearch-* elasticsearch && \
     cd /xsweet
 
+#Downloading logstash and GeoDatabase
+RUN wget https://artifacts.elastic.co/downloads/logstash/logstash-6.0.1.tar.gz && \
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
+    tar -xzf GeoLite2-*.tar.gz && \
+    tar -xzf logstash-*.tar.gz && \
+    rm GeoLite2-*.tar.gz && \  
+    rm logstash-*.tar.gz && \
+    mv logstash-* logstash && \
+    mv ./GeoLite2-*/GeoLite2-* /xsweet/logstash/ && \
+    rm -r GeoLite2-* && \
+    cd /xsweet
 
 
+#Downloading kibana
+RUN wget https://artifacts.elastic.co/downloads/kibana/kibana-6.0.1-linux-x86_64.tar.gz && \
+    tar -xzf kibana-*.tar.gz && \
+    rm kibana-*.tar.gz && \
+    mv kibana-* kibana && \
+    #Allow kibana to be accessed from the outside machine 
+    sed -ri "s!^(\#\s*)?(server\.host:).*!\2 '0.0.0.0'!" /xsweet/kibana/config/kibana.yml
+
+USER xsweet
+COPY logstash.conf /xsweet/logstash/
+COPY docker-start.sh /xsweet/xsweet/
+
+WORKDIR /xsweet/xsweet
+
+CMD [ "/bin/bash", "docker-start.sh"]
+
+EXPOSE 2222 5601
