@@ -12,4 +12,31 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 #Supervisord
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor && \
 	mkdir -p /var/log/supervisor
-CMD ["/usr/bin/supervisord", "-n"]    
+CMD ["/usr/bin/supervisord", "-n"]   
+
+#Utilities
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-minimal \
+    python-pip build-essential default-jre python-virtualenv \
+    python-setuptools git wget ssh curl
+
+RUN DEBIAN_FRONTEND=noninteractive pip install --upgrade pip && \ 
+    pip install setuptools && \
+    pip install virtualenv && \
+    pip install pycrypto && \
+    pip install pyasn1 && \ 
+    pip install pyasn1-modules && \
+    pip install virtualenv && \
+    pip install twisted && \
+    pip install cryptography && \
+    pip install tzlocal
+
+#Downloading elasticsearch
+RUN mkdir -p xsweet && \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz && \
+    tar -xzf elasticsearch-*.tar.gz && \
+    rm elasticsearch-*.tar.gz && \
+    mv elasticsearch-* elasticsearch && \
+    cd /xsweet
+
+
+
