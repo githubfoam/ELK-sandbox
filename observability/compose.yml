@@ -3,22 +3,25 @@ version: '3.7'
 services:
 
   elasticsearch:
-    image: elasticsearch:7.10
-    container_name: elasticsearch710
+    # https://hub.docker.com/_/elasticsearch
+    image: elasticsearch:7.14.2
+    container_name: elasticsearch7142
     ports: 
       - 9200:9200
     networks:
       - elk-stack
 
   logstash:
-    image: logstash:7.10
-    container_name: logstash710
+  # https://hub.docker.com/_/logstash
+    image: logstash:7.14.2
+    container_name: logstash7142
     networks:
       - elk-stack
 
   kibana:
-    image: kibana:7.10
-    container_name: kibana710
+    # https://hub.docker.com/_/kibana
+    image: kibana:7.14.2
+    container_name: kibana7142
     ports: 
       - 5601:5601
     networks:

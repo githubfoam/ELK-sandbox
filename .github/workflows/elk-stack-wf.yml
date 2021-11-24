@@ -1,0 +1,32 @@
+name: "elk-stack workflow"
+
+
+on:
+  push:
+    branches: [ test ]
+  # schedule:
+  #     - cron:  '0 0 * * 0' #At 00:00 on Sunday every week
+
+jobs:
+
+# https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html        
+  ubuntu-latest-virtualenv-job:
+    name: "ubuntu-latest virtualenv job"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "build elk-stack"
+      working-directory: elk-stack
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        sudo docker-compose --file elk-stack.yml up -d
+        sudo docker-compose --file elk-stack.yml ps   
+        # Submit a _cat/nodes request to see that the nodes are up and running
+        curl -X GET "localhost:9200/_cat/nodes?v&pretty"   
+        deactivate
