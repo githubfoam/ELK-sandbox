@@ -18,7 +18,7 @@ jobs:
     - name: "os fingerprinting"
       run: hostnamectl status   
     - name: "build elk-stack"
-      working-directory: elk-stack
+      working-directory: "elk-stack/1"
       run: |
         pip3 install virtualenv
         virtualenv -p $(which python3) ~venvpy3
