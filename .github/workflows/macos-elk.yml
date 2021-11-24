@@ -1,0 +1,104 @@
+name: "macos elk-stack workflow"
+
+
+on:
+  push:
+    branches: [ test ]
+  # schedule:
+  #     - cron:  '0 0 * * 0' #At 00:00 on Sunday every week
+
+jobs:
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/brew.html
+  macos-latest:
+      name: "elk stack - macos-latest 10.15.7"
+      runs-on: macos-latest
+      env:
+        ES_HOME: "/usr/local/var/homebrew/linked/elasticsearch-full"      
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: "brew update"
+        run: brew update     
+      - name: "check on brew version"
+        run: brew --version                           
+      - name: "brew cask list"
+        run:   brew list --cask #Warning: Calling brew cask list is deprecated! Use brew list [--cask] instead.
+      - name: "brew list --formula"
+        run: brew list --formula #List all the installed formulas
+      - name: "Get OS X System Version"
+        run: sw_vers       
+      - name: "Get Mac System Details with system_profiler"
+        run: system_profiler | more  
+      - name: "osfingerprinting"
+        run: uname -a     
+      - name: "install osquery"
+        run: |
+            brew tap elastic/tap
+            brew install elastic/tap/elasticsearch-full
+            # Elasticsearch home directory or $ES_HOME
+            ls -lai $ES_HOME           
+            # Binary scripts including elasticsearch to start a node and elasticsearch-plugin to install plugins
+            ls -lai /usr/local/var/homebrew/linked/elasticsearch-full/bin
+
+
+
+
+  # macos-110:
+  #     name: "macos-11.0"
+  #     runs-on: macos-11.0 # ProductVersion 11.0.1
+  #     steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v1
+  #     - name: "brew update"
+  #       run: brew update    
+  #     - name: "install osquery"
+  #       run: |
+  #           chmod +x scripts/install_osquery.sh
+  #           sh scripts/install_osquery.sh 
+  #     - name: "DFIR osquery list"
+  #       run: |
+  #           chmod +x scripts/dfir_osquery.sh
+  #           sh scripts/dfir_osquery.sh          
+  #     - name: "check on brew version"
+  #       run: brew --version   #Homebrew 2.5.12   
+  #     - name: "brew cask list"
+  #       run:   brew list --cask #Warning: Calling brew cask list is deprecated! Use brew list [--cask] instead.
+  #     - name: "brew list --formula"
+  #       run: brew list --formula #List all the installed formulas
+  #     - name: "Get OS X System Version"
+  #       run: sw_vers       
+  #     - name: "Get Mac System Details with system_profiler"
+  #       run: system_profiler | more  
+  #     - name: "osfingerprinting"
+  #       run: uname -a                           
+
+
+  # macos-1015:
+  #     name: "macos-10.15"
+  #     runs-on: macos-10.15 # ProductVersion 10.15.7
+  #     steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v1
+  #     - name: "brew update"
+  #       run: brew update     
+  #     - name: "install osquery"
+  #       run: |
+  #           chmod +x scripts/install_osquery.sh
+  #           sh scripts/install_osquery.sh 
+  #     - name: "DFIR osquery list"
+  #       run: |
+  #           chmod +x scripts/dfir_osquery.sh
+  #           sh scripts/dfir_osquery.sh         
+  #     - name: "check on brew version"
+  #       run: brew --version   #Homebrew 2.5.12   
+  #     - name: "brew cask list"
+  #       run:   brew list --cask #Warning: Calling brew cask list is deprecated! Use brew list [--cask] instead.
+  #     - name: "brew list --formula"
+  #       run: brew list --formula #List all the installed formulas
+  #     - name: "Get OS X System Version"
+  #       run: sw_vers       
+  #     - name: "Get Mac System Details with system_profiler"
+  #       run: system_profiler | more  
+  #     - name: "osfingerprinting"
+  #       run: uname -a    
