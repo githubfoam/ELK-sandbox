@@ -29,4 +29,9 @@ jobs:
         sudo docker-compose --file elk-stack.yml ps   
         # Submit a _cat/nodes request to see that the nodes are up and running
         curl -X GET "localhost:9200/_cat/nodes?v&pretty"   
+        # Open Kibana to load sample data and interact with the cluster
+        # curl http://localhost:5601
+        docker exec kib01 /bin/bash -c "curl http://localhost:5601"
+        # tear down the containers and volumes
+        docker-compose down -v
         deactivate
