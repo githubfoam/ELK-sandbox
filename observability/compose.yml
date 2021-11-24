@@ -13,7 +13,6 @@ services:
   logstash:
     image: logstash:7.10
     container_name: logstash710
-    volumes:
     networks:
       - elk-stack
 
