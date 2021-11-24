@@ -16,18 +16,19 @@ jobs:
     - uses: actions/checkout@v2
     - name: "os fingerprinting"
       run: hostnamectl status   
-    - name: "python3 virtualenv"
+    - name: "build elk-stack"
+      working-directory: observability
       run: |
         pip3 install virtualenv
         virtualenv -p $(which python3) ~venvpy3
         source ~venvpy3/bin/activate
         pip install -r requirements.txt 
         virtualenv --version
+        sudo docker-compose --file compose.yml up -d
+        sudo docker-compose --file compose.yml ps        
         deactivate
-    # - name: "deactivate virtualenv"
-    #   run: deactivate  
-    - name: Docker build
-      working-directory: observability
-      run: |
-        docker-compose build 
-        docker-compose push    
+    # - name: Docker build
+    #   working-directory: observability
+    #   run: |
+    #     sudo docker-compose --file compose.yml up -d
+    #     sudo docker-compose --file compose.yml ps

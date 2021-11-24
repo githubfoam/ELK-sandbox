@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:7.10
+    container_name: elasticsearch710
+    ports: 
+      - 9200:9200
+    networks:
+      - elk-stack
+
+  logstash:
+    image: logstash:7.10
+    container_name: logstash710
+    volumes:
+    networks:
+      - elk-stack
+
+  kibana:
+    image: kibana:7.10
+    container_name: kibana710
+    ports: 
+      - 5601:5601
+    networks:
+      - elk-stack
+
+networks:
+  elk-stack:
+    name: elk-net
