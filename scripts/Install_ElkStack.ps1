@@ -38,10 +38,11 @@ else
     $webclient.DownloadFile($source, $destination)
 }
 
+Set-Location -Path $workdir
+
 # Start the installation
 # By default, msiexec.exe does not wait for the installation process to complete
 # To wait on the process to finish and ensure that %ERRORLEVEL% is set accordingly
-Set-Location -Path $destination
 start /wait msiexec.exe /i elasticsearch-7.15.2.msi /qn
 # Start-Process -FilePath "msiexec.exe" -ArgumentList "/i elasticsearch-7.15.2.msi /qn"
 # a log file for the installation process can be found within the %TEMP% directory
