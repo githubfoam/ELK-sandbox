@@ -1,0 +1,33 @@
+name: "observability workflow"
+
+
+on:
+  push:
+    branches: [ test ]
+  # schedule:
+  #     - cron:  '0 0 * * 0' #At 00:00 on Sunday every week
+
+jobs:
+
+  ubuntu-2004-virtualenv-job:
+    name: "ubuntu-latest virtualenv job"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status   
+    - name: "python3 virtualenv"
+      run: |
+        pip3 install virtualenv
+        virtualenv -p $(which python3) ~venvpy3
+        source ~venvpy3/bin/activate
+        pip install -r requirements.txt 
+        virtualenv --version
+        deactivate
+    # - name: "deactivate virtualenv"
+    #   run: deactivate  
+    - name: Docker build
+      working-directory: observability
+      run: |
+        docker-compose build 
+        docker-compose push    
